@@ -1,10 +1,7 @@
 {% extends 'index.html' %}
 {% block content %}
     <style>
-        .nav-pills{
-            background: #EEE4E1;
-        }
-        
+
         .nav-pills .nav-item.show .nav-link, .nav-pills .nav-link.active{
             background: #E6BEAE
         }
@@ -14,7 +11,7 @@
     <div class="row">
         <h1>{{search}}</h1>
         <div class="d-flex align-items-start">
-            <div class = "container overflow:auto" style="margin-left: 0%; width: 15%;">
+            <div class = "container overflow:auto" style="width: 20%; margin-left: 0%;">
                 <div class="nav flex-column nav-pills my-2 " id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     {% if path|e == '/show_text' %}
                         {% for word_list in new_list %}
@@ -39,7 +36,7 @@
                     {% endif %}
                 </div>
             </div>
-            <div class = "container" style="width: 85%; margin-right: 10%;">
+            <div class = "container" style="width: 80%; margin-right: 10%;">
                 <div class="tab-content " id="v-pills-tabContent" >
                     {% if path|e == '/show_text' %}
                         {% for word_list in new_list %}
