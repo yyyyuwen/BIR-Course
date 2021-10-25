@@ -244,27 +244,52 @@ Output: [('Pierre', 'NNP'), ('Vinken', 'NNP'), (',', ','), ('61', 'CD'), ('years
 
 分析是否要放stop words(the,for,...介系詞等等 )
 
-作業要求
-* 實現zipf distribution（對文字的頻率的認識）
-* pudmed XML文件：實驗組 推特：對照組 一百篇 一千篇 一萬篇對特定的字的差別並分析
-    * 加入stopword 捨棄stopword 差別
-* patial match（部分比對） 少一個字是否搜尋的到（找最相近的字）
-    * edit distance
 
+## Demo
+`./`
+首頁
+![](https://i.imgur.com/xlCM5jM.png)
+
+
+`./show_text`
+搜尋所有的文本並顯示出來
+
+![](https://i.imgur.com/FfGW8kd.png)
+
+`./search`
+會找到所有的相似字，並highlight起來
+
+![](https://i.imgur.com/MMZglg5.png)
+`./show_img`
+顯示
+* zipf Distribution
+* Porter's algo
+* using stop word 
+
+![](https://i.imgur.com/ltUAVjN.png)
+## Reference
 https://ithelp.ithome.com.tw/articles/10197223
 
 [Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/)
+
 [Python網頁設計：Flask使用筆記(二)- 搭配HTML和CSS](https://yanwei-liu.medium.com/python網頁設計-flask使用筆記-二-89549f4986de)
+
 [使用 NLTK 搭配 Twitter API 拿取社群資料：以川普的 Twitter資料為例](https://cyeninesky3.medium.com/使用-nltk-搭配-twitter-api-拿取社群資料-以川普的-twitter資料為例-2bd493f452a6)
+
 [iOS Twitter API串接 + JSON解析 - Twrendings](https://medium.com/彼得潘的-swift-ios-app-開發教室/ios-twitter-api串接-json解析-twrendings-4e0da5599398)
+
 [flask許多神奇功能](https://hackmd.io/@shaoeChen/HJiZtEngG/https%3A%2F%2Fhackmd.io%2Fs%2FrkgXYoBeG)
+
 [Flask example with POST](https://stackoverflow.com/questions/22947905/flask-example-with-post
 )
+
 [Flask example with loop](https://stackoverflow.com/questions/20317456/looping-over-a-tuple-in-jinja2)
 
 
 [Stemming and Lemmatization in Python](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python)
+
 [詞幹提取](https://zh.wikipedia.org/wiki/词干提取)
+
 [Zipf's Law in NLP](https://iq.opengenus.org/zipfs-law/)
 
 [6.3. difflib — Helpers for computing deltas](https://docs.python.org/3.6/library/difflib.html#sequencematcher-examples)
