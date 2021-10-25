@@ -135,8 +135,8 @@ os.path.join(app.config['IMG_FOLDER'], 'image.png')
 > **class flask.Markup(base='', encoding=None, errors='strict')**
 > 
 > Def : A string that is ready to be safely inserted into an HTML or XML document, either because it was escaped or because it was marked safe.
+>Passing an object to the constructor converts it to text and wraps it to mark it safe without escaping. To escape the text, use the escape() class method instead.
 
-Passing an object to the constructor converts it to text and wraps it to mark it safe without escaping. To escape the text, use the escape() class method instead.
 這次專案中我發現這是一個很好用的方法，當你在後台嵌入HTML格式，經過route傳遞到.HTML會被自動轉譯成string格式而不是保留html（例如`<class=...>`會被轉型成 `&lt;class=...&gt;`），此時就需要使用到Markup。
 
 ##### 安裝Markup
@@ -150,6 +150,34 @@ Markup("<em>Hello</em> ") + "<foo>"
 ```
 可以看到有Markup的被保留下來．
 
+## Bootstrap 5
+> [官方文件](https://getbootstrap.com/docs/5.0/getting-started/introduction/)
+> [中文版](https://bootstrap5.hexschool.com)
+
+這次的互動樣式都是使用 **Bootstrap5**建構出來的，他厲害的地方在於Bootstrap將流變隔線規劃的非常完整，要做RWD（響應式設計）會輕鬆許多。
+此次專案主要用到幾項小元件
+### Narbar
+他是一個導覽列，我主要的功能按鈕都放在這個導覽列上
+![](https://i.imgur.com/cAhECAA.png)
+`Choose File: `選擇Xml(download from pubmed)或是Json(download from Twitter)
+`Picture: `找出各篇的Zipf distribution、Porter's algo、stop word.
+`Search: `搜尋相近字並highlight
+
+### Navs and tabs
+頁籤功能，主要是拿來做相似字排列，當點到button時便會對應到存在該單字的文章。
+![](https://i.imgur.com/gHpYLni.png)
+
+除此之外還有使用到了`Button`、`Alert`、`Dropdowns`等小功能。
+另外還可以使用css更改顏色樣式，在使用Bootstrap前記得link css與javaScript
+```htmlembedded=
+<!- css ->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+```
+```htmlembedded=
+<!- javaScript ->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.min.js" integrity="sha384-lpyLfhYuitXl2zRZ5Bn2fqnhNAKOAaM/0Kr9laMspuaMiZfGmfwRNFh8HlMy49eQ" crossorigin="anonymous"></script>
+```
 
 
 ## Text preprocessing
@@ -179,7 +207,6 @@ print(geek)
 ## output=
 Output = [‘The’, ‘price’, ‘of’, ‘burger’, ‘in’, ‘BurgerKing’, ‘is’, ‘Rs’, ‘.’, ’36’, ‘.’]
 ```
-
 #### Python nltk.tokenize.word_tokenize
 ```python=
 from nltk.tokenize import word_tokenize
@@ -188,6 +215,12 @@ print(word_tokenize(text))
 
 ## output=
 Output: ['God', 'is', 'Great', '!', 'I', 'won', 'a', 'lottery', '.']
+```
+#### Python re.split
+
+這也是我此次專案使用的方法
+```python=
+re.split(r'[!(\')#$"&…%^*+,./{}[;:<=>?@~ \　]+', word)
 ```
 
 ### 切割sentences
@@ -231,18 +264,32 @@ Output: [('Pierre', 'NNP'), ('Vinken', 'NNP'), (',', ','), ('61', 'CD'), ('years
 
 完整的標籤列表[參考](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html)
 
+## Algorithm
+
 ### zipf distribution
-
 ![](https://i.imgur.com/zKgYVKR.png)
-而分母為Riemann Zeta function.
-
+分母為Riemann Zeta function.
 
 #### scipy.special.zetac(x)
-
 此函數定義為
 ![](https://i.imgur.com/BB9QvYb.png)
 
-分析是否要放stop words(the,for,...介系詞等等 )
+> 此次我定義X軸為單字(從左至右frequency由高到低)
+> Y軸是出現次數
+> 總共取前50個單字來plot
+
+### Porter's algo
+Porter's algo 主要是將一些動詞類的變化去做統一的處理
+例如`testing` `tested` `tests` 在經過Porter處理後，會統一變成`test`，對於字元的搜索會變得更加方便準確。
+
+### Stop words
+Stop words主要是表示一些定冠詞、介系詞、代名詞類的單字，因為在文章中出現的頻率會遠大於其他的單字，且並沒有什麼資訊，若是將這些單字留下來的話因為頻率過大的關係，有可能會擾亂到重要的字的分析。
+
+### 相似字搜尋
+[6.3. difflib — Helpers for computing deltas](https://docs.python.org/3.6/library/difflib.html#sequencematcher-examples)
+![](https://i.imgur.com/Rqe1Z4X.png)
+
+這個方法是會將最相近的word都找出來，`cutoff`是相似度，越高則挑選的越嚴格；`n`是會找出的字。
 
 
 ## Demo
@@ -252,7 +299,7 @@ Output: [('Pierre', 'NNP'), ('Vinken', 'NNP'), (',', ','), ('61', 'CD'), ('years
 
 
 `./show_text`
-搜尋所有的文本並顯示出來
+選擇.xml或是.json搜尋所有的文本並顯示出來
 
 ![](https://i.imgur.com/FfGW8kd.png)
 
@@ -285,6 +332,7 @@ https://ithelp.ithome.com.tw/articles/10197223
 
 [Flask example with loop](https://stackoverflow.com/questions/20317456/looping-over-a-tuple-in-jinja2)
 
+[Python深度學習筆記(五)：使用NLTK進行自然語言處理](https://yanwei-liu.medium.com/python深度學習筆記-五-使用nltk進行自然語言處理-24fba36f3896)
 
 [Stemming and Lemmatization in Python](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python)
 
@@ -292,6 +340,7 @@ https://ithelp.ithome.com.tw/articles/10197223
 
 [Zipf's Law in NLP](https://iq.opengenus.org/zipfs-law/)
 
-[6.3. difflib — Helpers for computing deltas](https://docs.python.org/3.6/library/difflib.html#sequencematcher-examples)
-![](https://i.imgur.com/Rqe1Z4X.png)
+[Another Twitter sentiment analysis with Python — Part 3 (Zipf’s Law, data visualisation)](https://towardsdatascience.com/another-twitter-sentiment-analysis-with-python-part-3-zipfs-law-data-visualisation-fc9eadda71e7)
+
+
 
