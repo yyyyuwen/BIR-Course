@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+        <div class="home-info">
+        <h1>---</h1>
+        {% for title, article in doc.items() %}
+        {% if article%}
+            <h3>{{ title|e }}</h3>
+            {% if article%}
+                {% for label, text in article.items() %}
+                    <b><p>{{ label|e }}</p></b>
+                    <p>{{ text|e }}</p>
+                    <br>
+                {% endfor %}
+            {% else %}
+                <b><p>No Article.</p></b>
+            {% endif %}
+        {% endif %}
+        {% endfor %}
+        </div>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'index.html' %}
+{% block content %}
+    <style>
+        .nav-pills{
+            background: #EEE4E1;
+        }
+        
+        .nav-pills .nav-item.show .nav-link, .nav-pills .nav-link.active{
+            background: #E6BEAE
+        }
+
+    </style>    
+
+    <div class="row">
+        <h1>{{search}}</h1>
+        <div class="d-flex align-items-start">
+            <div class = "container overflow:auto" style="margin-left: 0%; width: 15%;">
+                <div class="nav flex-column nav-pills my-2 " id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    {% if path|e == '/show_text' %}
+                        {% for word_list in new_list %}
+                            {% for searched_word, article in word_list.items() %}
+                            <button class="nav-link" id="{{searched_word.0}}-tab" data-bs-toggle="pill" data-bs-target="#{{searched_word.0}}" type="button" role="tab" aria-controls="{{searched_word.0}}" aria-selected="true" style = "color: #5E565A">
+                                <b><h5>{{searched_word.0}}</h5></b>
+                            </button>
+                            {% endfor %}
+                        {% endfor %}
+                    {% elif path|e == '/show_json' %}
+                        {% for word_list in new_list %}
+                            {% for searched_word, article in word_list.items() %}
+                            <button class="nav-link" id="{{searched_word.0}}-tab" data-bs-toggle="pill" data-bs-target="#{{searched_word.0}}" type="button" role="tab" aria-controls="{{searched_word.0}}" aria-selected="true" style = "color:#5E565A">
+                                <b><h5>{{searched_word.0}}</h5></b>
+                            </button>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-danger" role="alert">
+                            Please choose file!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class = "container" style="width: 85%; margin-right: 10%;">
+                <div class="tab-content " id="v-pills-tabContent" >
+                    {% if path|e == '/show_text' %}
+                        {% for word_list in new_list %}
+                            {% for searched_word, text_list in word_list.items() %}
+                                <div class="tab-pane fade" id="{{searched_word.0}}" role="tabpanel" aria-labelledby="{{searched_word.0}}-tab" >
+                                    {% for text in text_list %}
+                                        {% for title, article in text.items() %}
+                                            <h3>{{ title|e }}</h3>
+                                            {% if article%}
+                                                {% for label, text in article.items() %}
+                                                    <b><p>{{ label|e }}</p></b>
+                                                    <p>{{ text|e }}</p>
+                                                    <br>
+                                                {% endfor %}
+                                            {% else %}
+                                                <b><p>No Article.</p></b>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% elif path|e == '/show_json' %}
+                        {% for word_list in new_list %}
+                            {% for searched_word, text_list in word_list.items() %}
+                                <div class="tab-pane fade ms-3" id="{{searched_word.0}}" role="tabpanel" aria-labelledby="{{searched_word.0}}-tab">
+                                    {% for text in text_list %}
+                                        {% for name, article in text.items() %}
+                                            {% if article%}
+                                            <h4>{{ name|e }}</h4>
+                                            <p>{{ article|e }}</p>
+                                            <br>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-danger" role="alert">
+                            Please choose file!
+                        </div>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+        
+        
+    </div>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <title>{% block title %}{% endblock %}</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            * {
+              box-sizing: border-box;
+            }
+            
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+            }
+            
+            /* Style the header */
+            header {
+              background-color: #666;
+              float: left;
+              width: 20%;
+              height: 150px;
+              padding: 20px;
+              text-align: left;
+              font-size: 25px;
+              color: white;
+            }
+            
+            /* Style the file section */
+            filePlace {
+              background-color: #666;
+              float: right;
+              width: 80%;
+              height: 150px;
+              padding: 20px;
+              text-align: right;
+              font-size: 25px;
+              color: white;
+            }
+            filePlace ul {
+              list-style-type: none;
+              padding: 0;
+            }
+            
+            /* Create two columns/boxes that floats next to each other */
+            nav {
+              float: left;
+              width: 20%;
+              height: 100%;  /*only for demonstration, should be removed */
+              background: #ccc;
+              padding: 20px;
+            }
+            
+            /* Style the list inside the menu */
+            nav ul {
+              list-style-type: none;
+              padding: 0;
+            }
+            
+            article {
+              float: left;
+              padding: 20px;
+              width: 80%;
+              background-color: #f1f1f1;
+              height: 100%;  /*only for demonstration, should be removed */
+            }
+            
+            /* Clear floats after the columns */
+            section::after {
+              content: "";
+              display: table;
+              clear: both;
+            }
+            
+            /* Style the footer
+            footer {
+              background-color: #777;
+              padding: 10px;
+              text-align: center;
+              color: white;
+            } */
+            
+            /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
+            @media (max-width: 600px) {
+              nav, article {
+                width: 100%;
+                height: 100%;
+              }
+            }
+            
+            @media (max-width: 600px) {
+              header, filePlace {
+                width: 100%;
+                height: 120px;
+              }
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <header>
+                <h2>IIR</h2>
+            </header>
+            <filePlace>
+                <ul>
+                    <li><a href="#">XML</a></li>
+                    <li><a href="#">JSON</a></li>
+                </ul>
+            </filePlace>
+        </section>
+
+        <section>
+            <nav>
+              <ul>
+                <li><a href="#">London</a></li>
+                <li><a href="#">Paris</a></li>
+                <li><a href="#">Tokyo</a></li>
+              </ul>
+            </nav>
+            
+            <article>
+            {% for title, article in doc.items() %}
+                {% if article%}
+                    <h3>{{ title|e }}</h3>
+                    {% if article%}
+                        {% for label, text in article.items() %}
+                            <b><p>{{ label|e }}</p></b>
+                            <p>{{ text|e }}</p>
+                            <br>
+                        {% endfor %}
+                    {% else %}
+                        <p>No Article</p>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </article>
+        </section>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    </body>
+</html>
