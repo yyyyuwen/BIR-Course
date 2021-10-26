@@ -29,8 +29,11 @@ Flask path
 /templates
 app.py
 ```
+
 `file`儲存一些檔案處理過的資料
+
 `static`一般是儲存image、javaScript跟css
+
 `templates` 儲存html格式
 
 要注意不可以寫成`flask.py`，會出錯
@@ -51,6 +54,7 @@ Jinja2可以將HTML頁面與後台的程式連起來，達到簡化HTML的目的
 
 #### 語法
 Jinja2可以使用一些ifelse、for、list、set、dict這些方法。
+
 **if else :**
 ```htmlembedded=
 {% if path|e == '/show_text' %}
@@ -123,7 +127,7 @@ def submit_page():
 由上面可以知道search就是從html傳遞過來的變數。
 
 #### 檔案上傳
-首先需要一個enctype屬性設定為`multipart/form-data`的HTML表單，將該文提交到指定URL。 URL處理程式從`request.files[]`物件中提取檔案並將其儲存到所需的位置。可以從request.files [file]物件的filename屬性中獲取。 但建議使用secure_filename()函式獲取它的安全版本。
+首先需要一個enctype屬性設定為 `multipart/form-data` 的HTML表單，將該文提交到指定URL。 URL處理程式從 `request.files[]` 物件中提取檔案並將其儲存到所需的位置。可以從`request.files[file]`物件的filename屬性中獲取。 但建議使用secure_filename()函式獲取它的安全版本。
 
 ```python=
 IMG_FOLDER = os.path.join('static', 'img') 
@@ -131,7 +135,7 @@ app.config['IMG_FOLDER'] = IMG_FOLDER #取得檔案路徑
 os.path.join(app.config['IMG_FOLDER'], 'image.png')
 ```
 #### Markup方法
-[Flask 官方文件](https://dormousehole.readthedocs.io/en/latest/api.html#flask.Markup)
+[Flask Markup](https://dormousehole.readthedocs.io/en/latest/api.html#flask.Markup)
 > **class flask.Markup(base='', encoding=None, errors='strict')**
 > 
 > Def : A string that is ready to be safely inserted into an HTML or XML document, either because it was escaped or because it was marked safe.
@@ -267,16 +271,22 @@ Output: [('Pierre', 'NNP'), ('Vinken', 'NNP'), (',', ','), ('61', 'CD'), ('years
 ## Algorithm
 
 ### zipf distribution
+
+> 此次我定義X軸為單字(從左至右frequency由高到低)
+> Y軸是出現次數
+> 總共取前50個單字來plot
+
+當利用zipd distribution在做frequency words時，通常一個單詞出現的頻率與它在頻率表里的排名成反比。所以，頻率最高的單詞出現的頻率大約是出現頻率第二位的單詞的2倍，而出現頻率第二位的單詞則是出現頻率第四位的單詞的2倍。
+
 ![](https://i.imgur.com/zKgYVKR.png)
+
 分母為Riemann Zeta function.
 
 #### scipy.special.zetac(x)
 此函數定義為
 ![](https://i.imgur.com/BB9QvYb.png)
 
-> 此次我定義X軸為單字(從左至右frequency由高到低)
-> Y軸是出現次數
-> 總共取前50個單字來plot
+
 
 ### Porter's algo
 Porter's algo 主要是將一些動詞類的變化去做統一的處理
