@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+{% block content %}
+  <div class="container-fluid">
+  <div class="row align-items-start">
+    <h3>---</h3>
+    <h5>---</h5>
+    <div class="col-5 mb-3 align-self-center">
+      <h1>Skip Gram</h1>
+      <form class="d-flex" method = "POST" action = "{{url_for('show_skipGram')}}">
+        <input class="form-control" name = 'sg_search' type="search" id="inputWord" placeholder="{{sg_search}}" aria-label="Search">
+        <button class="btn sg-btn" type="submit">Find</button>
+      </form>
+    </div>
+  </div>
+  </div>
+  {% block skipgram %}
+  {% endblock %}
+{% endblock %}

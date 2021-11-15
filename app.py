@@ -12,7 +12,13 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 import difflib
 import pickle
+import torch
+from model import CBOW_Model, SkipGram_Model
+from scipy.special import softmax
 from markupsafe import Markup
+from sklearn.decomposition import PCA
+import itertools
+
 
 IMG_FOLDER = os.path.join('static', 'img')
 
@@ -183,17 +189,68 @@ def submit_page():
             if doc_list:
                 match_article[key_word] = doc_list
         new_list.append(match_article)
-    # print(new_list)
-            
-
-
-
-  
-                
-
-    
-    # print(new_list[-1])
     return render_template("submit_page.html", **locals())
+
+@app.route('/skip_gram')
+def skip_gram():
+    sg_search = "Input Word"
+    return render_template("SkipGram.html")
+
+@app.route('/show_skipGram', methods=['POST'])
+def show_skipGram():
+    sg_search = request.values['sg_search']
+    print(sg_search)
+    with open('./file/word2idx_lemma.pickle','rb') as file:
+        word2idx = pickle.load(file)
+    with open('./file/idx2word_lemma.pickle','rb') as file:
+        idx2word = pickle.load(file)
+    predict_word = {}
+    if sg_search.lower() not in word2idx.keys():
+        word = sg_search
+    else:
+        folder = "Model"
+        model = SkipGram_Model(vocab_size = len(word2idx), embedding_dim = 600)
+        device = torch.device("cpu")
+        # model = model.to(device)
+        ## Load model ...
+        model.load_state_dict(torch.load(f"./{folder}/SkipGram_lemma_65.pt", map_location=device))
+        model.eval()
+        test_voc = word2idx[sg_search.lower()]
+        inputs = torch.tensor(test_voc)
+        with torch.no_grad():
+            inputs = inputs.to(device)
+            test_pred = model(inputs)
+            test_label = softmax(test_pred.squeeze().cpu().data.numpy())
+            idx = np.argpartition(test_label, -15)[-15:]
+            print(idx)
+            display_plot(model, idx, idx2word)
+            for i in idx[::-1]:
+                predict_word[idx2word[i]] = test_label[i]
+                print(f'{idx2word[i]} : {test_label[i]}')
+        pred_Figure = os.path.join(app.config['IMG_FOLDER'], 'predict_pic.png')
+
+    return render_template("show_skipGram.html", **locals())
+
+def display_plot(model, idx, idx2word):
+    # Take word vectors
+    word_vectors = []
+    for word in idx:
+        inputs = torch.tensor(word)
+        pred = model(inputs)
+        pred = softmax(pred.squeeze().cpu().data.numpy())
+        word_vectors.append(pred)
+        
+    two_dim = PCA().fit_transform(np.array(word_vectors))[:,:2]
+    # Draw
+    plt.switch_backend('agg')
+    plt.figure(figsize=(10,10))
+    color_cycle= itertools.cycle(["orange","pink","blue","brown","red","grey","yellow","green", "#ECD5FA", "#E8C88C"])
+    for word, (x, y) in zip(idx, two_dim):
+        plt.scatter(x, y, label= idx2word[word], color=next(color_cycle))
+        plt.text(x+0.001, y+0.001, idx2word[word])
+    plt.legend(loc='best')
+    plt.savefig('./static/img/predict_pic.png')
+
 
 def find_XML():
     with open('./file/xml4000_words.pickle', 'rb') as file:
@@ -233,4 +290,4 @@ def text2word(text):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port = 8080)

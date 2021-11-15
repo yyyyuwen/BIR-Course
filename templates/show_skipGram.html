@@ -1,0 +1,19 @@
+{% extends 'SkipGram.html' %}
+{% block skipgram %}
+<div class='row' style = 'margin-top: 30px'>
+<div class="col-3">
+  {% if predict_word == {} %}
+    <h3>'{{ word }}' not in vocabulary.</h3>
+  {% else %}
+  {% for word, num in predict_word.items() %}
+    <h4>{{ word|e }}</h4>
+    <p>{{'%0.2f'|format(num*100|float)}}%</p>
+    <br>
+  {% endfor %}
+  {% endif %}
+</div>
+<div class="col-9">
+  <img src="{{ pred_Figure }}" class="img-fluid">
+</div>
+</div>
+{% endblock %}
