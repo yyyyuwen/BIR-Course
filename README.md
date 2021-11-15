@@ -1,297 +1,132 @@
-# Project2 for the Biomedical Information Retrieval Course
-###### tags: `NCKU` `python` `生醫資訊` `Flask` `jinja2`
+# Project3 for the Biomedical Information Retrieval Course
+###### tags: `NCKU` `python` `生醫資訊`
 
 ## Environment
 * macOS
 * python3 
-* Flask
-* nltk
-* numpy
-* matplotlib
-* bootstrap5
+* Flask 2.0.2
+* matplotlib 3.4.3
+* nltk 3.6.5
+* torch 1.10.0
+* sklearn
 
 ## Requirement
-* 實現zipf distribution（對文字的頻率的認識）
-* pudmed XML文件 & Twitter json文件 
-    * 取不同的數量並分析彼此差別
-    * stopword
-    * porter's Aigorithm
-    * edit-matching
+* Implement **word2vec** for a set of text documents from PubMed.
+* Choose one of the 2 basic neural network models to preprocess the text set from document collection.
+    * **Continuous Bag of Word (CBOW)**: use a window of word to predict the middle word.
+    * **Skip-gram (SG)**: use a word to predict the surrounding ones in window. Window size is not limited. Computer languages are not limited.
 
-## Flask
-[Flask](https://flask.palletsprojects.com/en/2.0.x/quickstart/#a-minimal-application) 主要是由[Werkzeug WSGI 工具箱](https://werkzeug.palletsprojects.com/en/2.0.x/)和[Jinja2 模板引擎](https://werkzeug.palletsprojects.com/en/2.0.x/)構成
-```
-Flask path
-/file
-/static
-  |-/img
-  |-/js
-/templates
-app.py
-```
-`file`儲存一些檔案處理過的資料
-`static`一般是儲存image、javaScript跟css
-`templates` 儲存html格式
+## Overview
 
-要注意不可以寫成`flask.py`，會出錯
-```python=
-export FLASK_APP=app.py
-flask run
-```
-### 與html傳遞的方法
-可以使用route()來告訴FLASK，並在後面填入要載入的url位址（網路路徑）中。首頁就可以寫成 `@app.route(“/”)`。通常我會把function name跟網路路徑取相同的名稱。
+### Flask & Bootstrap 5
+> 參考 : https://hackmd.io/@yyyyuwen/BIR_Project2
 
-### Jinja2樣版引擎
-Jinja2可以將HTML頁面與後台的程式連起來，達到簡化HTML的目的。也可以方便地將參數傳至HTML並顯示出來。
+### Word to Vector
+***Word2Vec***是從大量文本中以非監督的方式學習語義的的一種模型，被大量用在NLP之中。Word2Vec是以詞向量的方式來表示語義，如果語義上有相似的單字，則在空間上距離也會很近，而 ***Embedding***是一種將單字從原先的空間映射到新的多維空間上，也就是把原先詞所在空間嵌入到一個新的空間中。
+以 $f(x) = y$來看，$f()$可以視為一個空間的概念，而$x$則是***embedding***也就是表示法，$y$是我們預期的結果。
+我們最常見的方式就是利用one-hot編碼建立一個詞彙表，而我訓練文檔有大約14,000個不重複的單詞，代表每一個詞彙就會是一個用0和1表示的14,000維的向量。
 
-#### render_template
-> render_template('name.html', **lacal()) 
+### CBOW & Skip-gram
+![](https://i.imgur.com/q3Zh8uw.png)
+CBOW和Skip-gram的model是非常相似的，主要的差異是CBOW是周圍的自在預測現在的字，而Skip-gram則是用現在的字去預測周圍的字。其中Window size是上下文的範圍(ex. Window size = 1指說取前後一個單字。)
 
-`**local()`是將funciton裡面的所有參數都傳到前端去，也可以使用 `name = name`這個用法選擇指定的參數傳入。而在.html檔中顯示參數的方法為`{{ name }}`。
-
-#### 語法
-Jinja2可以使用一些ifelse、for、list、set、dict這些方法。
-**if else :**
-```htmlembedded=
-{% if path|e == '/show_text' %}
-    <!-- 內容 -->
-{% elif path|e == '/show_json' %}
-    <!-- 內容 -->
-{% else %}
-    <!-- 內容 -->
-{% endif %}
-```
-
-**for loop :**
-```htmlembedded=
-{% for word_list in new_list %}
-    <!-- 內容 -->
-{% endfor %}
-```
-
-**Dictionary :**
-```htmlembedded=
-{% for searched_word, article in word_list.items() %}
-
-{{searched_word}} #key值
-{{article}} #value值
-
-{% endfor %}
-```
-
-**List :**
-```htmlembedded=
-{{list.0}}
-{{list.1}}
-```
-> 更多用法：[python jinja2 + flask](https://hackmd.io/@shaoeChen/SJ0X-PnkG?type=view)
-#### 樣板繼承方法
-有時候為了不讓相同的語法重複使用(例如固定列)，我們可以用繼承的方法來簡化他。
-子樣版通常會寫成
-```htmlembedded=
-{% extends "父樣版.html" %}
-```
-並注意extends一定要放在繼承的html中的第一個標籤。
-在被繼承的html檔中放入想要填入子樣版的內容，會使用
-```htmlembedded=
-{% block content %}{% endblock %}
-```
-content可以是任何變數，但一定要跟子樣版的變數一樣。且同一個頁面中，content不可以重複。
-
-#### GET & POST傳遞資料
-> 參考資料：[Python Web Flask — GET、POST傳送資料](https://medium.com/seaniap/python-web-flask-get-post傳送資料-2826aeeb0e28)
-
-當伺服器接受Request且提供對應的Response的溝通行為，是HTTP Request的一個生命週期。
-這次search功能是使用POST來實作的
-import方法：
-`from flask import Flask, render_template, request`
-
-在HTML檔裡頭定義POST以及設定要對應function的名稱
-```htmlembedded=
-<form class="d-flex" method = "POST" action = "{{url_for('submit_page')}}">
-    <input class="form-control" name = 'search' type="search" placeholder="Search" aria-label="Search">
-    <button class="btn submit-btn" type="submit">Search</button>
-</form>
-```
-
-其對應的function為
-```python=
-@app.route('/submit_page', methods=['POST'])
-def submit_page():
-    search = request.values['search']
-```
-由上面可以知道search就是從html傳遞過來的變數。
-
-#### 檔案上傳
-首先需要一個enctype屬性設定為`multipart/form-data`的HTML表單，將該文提交到指定URL。 URL處理程式從`request.files[]`物件中提取檔案並將其儲存到所需的位置。可以從request.files [file]物件的filename屬性中獲取。 但建議使用secure_filename()函式獲取它的安全版本。
+#### Model Architecture
+![](https://i.imgur.com/ecAh8Tk.png)
 
 ```python=
-IMG_FOLDER = os.path.join('static', 'img') 
-app.config['IMG_FOLDER'] = IMG_FOLDER #取得檔案路徑
-os.path.join(app.config['IMG_FOLDER'], 'image.png')
+SkipGram_Model(
+  (embeddings): Embedding(14086, 600, max_norm=1)
+  (linear): Linear(in_features=600, out_features=14086, bias=True)
+)
+# Input Layer : 1 x 14,086
+# Hidden Layer : 14,000 x 600
+# Output Layer : 600 x 14,086
 ```
-#### Markup方法
-[Flask 官方文件](https://dormousehole.readthedocs.io/en/latest/api.html#flask.Markup)
-> **class flask.Markup(base='', encoding=None, errors='strict')**
-> 
-> Def : A string that is ready to be safely inserted into an HTML or XML document, either because it was escaped or because it was marked safe.
 
-Passing an object to the constructor converts it to text and wraps it to mark it safe without escaping. To escape the text, use the escape() class method instead.
-這次專案中我發現這是一個很好用的方法，當你在後台嵌入HTML格式，經過route傳遞到.HTML會被自動轉譯成string格式而不是保留html（例如`<class=...>`會被轉型成 `&lt;class=...&gt;`），此時就需要使用到Markup。
+### Data pre-Processing
 
-##### 安裝Markup
-`pip3 install Markup`
-##### import
-`from markupsafe import Markup`
-##### 範例
-```python=
-Markup("<em>Hello</em> ") + "<foo>"
-# Markup('<em>Hello</em> &lt;foo&gt;')
-```
-可以看到有Markup的被保留下來．
+![](https://i.imgur.com/kFBehQA.png)
 
-
-
-## Text preprocessing
-
-### What is Tokenization?
-**Tokenization is the process by which a large quantity of text is divided into smaller parts called tokens.** These tokens are very useful for finding patterns and are considered as a base step for stemming and lemmatization. 
-
-### 切割words
-#### Python NLTK tokenize.WordPunctTokenizer()
-用法：能從字母或是非字母字符流中提取
+#### 1. **讀檔**
+讀取4000篇.xml，取Title、Label、AbstractText
+#### 2. **將文章分段轉成Sentences，取Stopword**
 
 ```python=
-# import WordPunctTokenizer() method from nltk 
-from nltk.tokenize import WordPunctTokenizer 
-     
-# Create a reference variable for Class WordPunctTokenizer 
-tk = WordPunctTokenizer() 
-     
-# Create a string input 
-gfg = "The price\t of burger \nin BurgerKing is Rs.36.\n"
-     
-# Use tokenize method 
-geek = tk.tokenize(gfg) 
-     
-print(geek)
-
-## output=
-Output = [‘The’, ‘price’, ‘of’, ‘burger’, ‘in’, ‘BurgerKing’, ‘is’, ‘Rs’, ‘.’, ’36’, ‘.’]
+sentences = sent_tokenize(text)
+sentences = [re.sub(r'[^a-z0-9|^-]', ' ', sent.lower()) for sent in sentences]
+clean_words = []
+for sent in sentences:
+    words = [word for word in sent.split() if not word.replace('-', '').isnumeric()]
+    words = stop_word(words)
+    clean_words.append(' '.join(words))
 ```
-
-#### Python nltk.tokenize.word_tokenize
+#### 3. **將句子切成單字**
 ```python=
-from nltk.tokenize import word_tokenize
-text = "God is Great! I won a lottery."
-print(word_tokenize(text))
-
-## output=
-Output: ['God', 'is', 'Great', '!', 'I', 'won', 'a', 'lottery', '.']
+tokens = [x.split() for x in text]
 ```
+#### 4. **Lemmatizer**
+> [Lemmatization in Python](https://www.machinelearningplus.com/nlp/lemmatization-examples-python/) 
 
-### 切割sentences
-
-#### Python nltk.tokenize.PunktWordTokenizer
+首先先將各個單字做詞性標註，最後再將字還原回去。
 ```python=
-from nltk.tokenize import PunktSentenceTokenizer
-tokenizer = PunktSentenceTokenizer()
-tokenizer.tokenize("Can't is a contraction.")
+def get_wordnet_pos(word):
+    """Map POS tag to first character lemmatize() accepts"""
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
 
-## output=
-Output: ["Can't is a contraction."]
-tokenizer.tokenize("Can't is a contraction. So is hadn't.")
+    return tag_dict.get(tag, wordnet.NOUN)
 
-## output=
-Output: ["Can't is a contraction.", "So is hadn't."]
-```
-#### Python nltk.tokenize.sent_tokenize
-```python=
-
-from nltk.tokenize import sent_tokenize
-text = "God is Great! I won a lottery."
-print(sent_tokenize(text))
-
-Output: ['God is Great!', 'I won a lottery ']
+lemmatizer = WordNetLemmatizer()
+lemma_word = [lemmatizer.lemmatize(w, get_wordnet_pos(w)) for sentence in sentences for w in sentence]
 ```
 
-### 詞性標註
-#### Python nltk.corpus.treebank
-
-文字和標注的組合是以tuple的方式儲存的
-```python=
-import nltk
-from nltk.corpus import treebank
-
-nltk.download('treebank')
-print(treebank.tagged_sents()[0])
-
-Output: [('Pierre', 'NNP'), ('Vinken', 'NNP'), (',', ','), ('61', 'CD'), ('years', 'NNS'), ('old', 'JJ'), (',', ','), ('will', 'MD'), ('join', 'VB'), ('the', 'DT'), ('board', 'NN'), ('as', 'IN'), ('a', 'DT'), ('nonexecutive', 'JJ'), ('director', 'NN'), ('Nov.', 'NNP'), ('29', 'CD'), ('.', '.')]
+#### 5. **建立詞彙表**
+將各個單字建立詞彙表，並單獨標示編號。
+```
+{'map': 4314, 'html': 4315, 'interchange': 4316, 'vtm': 4317, 'restrictive': 4318, 'pre-analytic': 4319, 'disadvantageous': 4320, 'unidirectional': 4321, 'wiley': 4322, 'periodical': 4323, 'alternate': 4324, 'low-throughput': 4325}
 ```
 
-完整的標籤列表[參考](https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html)
+#### 6. **建立pair**
+將詞彙表的編號建立成pair，`window_size = 2`
+![](https://i.imgur.com/YuPEzgo.png)
 
-### zipf distribution
+```
+[(0, 1), (0, 2), (1, 0), (1, 2), (1, 3), (2, 0), (2, 1), (2, 3), (2, 4), (3, 1), (3, 2), (3, 4), (3, 5), (4, 2), (4, 3), (4, 5), (4, 6), (5, 3), (5, 4), (5, 6)]
+```
+### visualization
+#### PCA (Principal Components Analysis) 
+> [sklearn.decomposition.PCA](https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html)
+將word vectors降維至二維的樣子，而關聯度高的單字會聚集在一起。
+Input word: covid-19
+![](https://i.imgur.com/A7wdB2H.png)
 
-![](https://i.imgur.com/zKgYVKR.png)
-而分母為Riemann Zeta function.
-
-
-#### scipy.special.zetac(x)
-
-此函數定義為
-![](https://i.imgur.com/BB9QvYb.png)
-
-分析是否要放stop words(the,for,...介系詞等等 )
 
 
 ## Demo
-`./`
-首頁
-![](https://i.imgur.com/xlCM5jM.png)
+> 前面參考：https://hackmd.io/@yyyyuwen/BIR_Project2
+
+點選Skip Gram輸入單字，會列出該單字前15關聯性的單字。
+Input word: covid-19
+![](https://i.imgur.com/ecTEx7d.png)
 
 
-`./show_text`
-搜尋所有的文本並顯示出來
-
-![](https://i.imgur.com/FfGW8kd.png)
-
-`./search`
-會找到所有的相似字，並highlight起來
-
-![](https://i.imgur.com/MMZglg5.png)
-`./show_img`
-顯示
-* zipf Distribution
-* Porter's algo
-* using stop word 
-
-![](https://i.imgur.com/ltUAVjN.png)
 ## Reference
-https://ithelp.ithome.com.tw/articles/10197223
-
-[Bootstrap 5](https://getbootstrap.com/docs/5.0/getting-started/introduction/)
-
-[Python網頁設計：Flask使用筆記(二)- 搭配HTML和CSS](https://yanwei-liu.medium.com/python網頁設計-flask使用筆記-二-89549f4986de)
-
-[使用 NLTK 搭配 Twitter API 拿取社群資料：以川普的 Twitter資料為例](https://cyeninesky3.medium.com/使用-nltk-搭配-twitter-api-拿取社群資料-以川普的-twitter資料為例-2bd493f452a6)
-
-[iOS Twitter API串接 + JSON解析 - Twrendings](https://medium.com/彼得潘的-swift-ios-app-開發教室/ios-twitter-api串接-json解析-twrendings-4e0da5599398)
-
-[flask許多神奇功能](https://hackmd.io/@shaoeChen/HJiZtEngG/https%3A%2F%2Fhackmd.io%2Fs%2FrkgXYoBeG)
-
-[Flask example with POST](https://stackoverflow.com/questions/22947905/flask-example-with-post
-)
-
-[Flask example with loop](https://stackoverflow.com/questions/20317456/looping-over-a-tuple-in-jinja2)
-
-
-[Stemming and Lemmatization in Python](https://www.datacamp.com/community/tutorials/stemming-lemmatization-python)
-
-[詞幹提取](https://zh.wikipedia.org/wiki/词干提取)
-
-[Zipf's Law in NLP](https://iq.opengenus.org/zipfs-law/)
-
-[6.3. difflib — Helpers for computing deltas](https://docs.python.org/3.6/library/difflib.html#sequencematcher-examples)
-![](https://i.imgur.com/Rqe1Z4X.png)
-
+* [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/pdf/1301.3781.pdf)
+* [Word2vec with PyTorch: Implementing Original Paper](https://notrocketscience.blog/word2vec-with-pytorch-implementing-original-paper/)
+* [[自然語言處理] Word to Vector 實作教學](https://medium.com/royes-researchcraft/自然語言處理-2-word-to-vector-實作教學-實作篇-e2c1be2346fc)
+* [Word2Vec Implementation](https://towardsdatascience.com/a-word2vec-implementation-using-numpy-and-python-d256cf0e5f28)
+* [Word2vec from scratch (Skip-gram & CBOW)](https://medium.com/@pocheng0118/word2vec-from-scratch-skip-gram-cbow-98fd17385945)
+* [Skip-Gram負採樣by Pytorch](https://zhuanlan.zhihu.com/p/105955900)
+* [PyTorch 實現 Skip-gram](https://zhuanlan.zhihu.com/p/275899732)
+* [讓電腦聽懂人話: 直觀理解 Word2Vec 模型](https://tengyuanchang.medium.com/讓電腦聽懂人話-理解-nlp-重要技術-word2vec-的-skip-gram-模型-73d0239ad698)
+* [降維與視覺化](https://ithelp.ithome.com.tw/articles/10243725)
+* [Scikit-learn介紹(10)_ Principal Component Analysis](https://ithelp.ithome.com.tw/articles/10206243)
+* [dict sort](https://ithelp.ithome.com.tw/articles/10222946)
+* [Lemmatization和Stemming](https://ithelp.ithome.com.tw/m/articles/10214221)
+* [Build your own Skip-gram Embeddings and use them in a Neural Network](https://blog.cambridgespark.com/tutorial-build-your-own-embedding-and-use-it-in-a-neural-network-e9cde4a81296)
+* [Word2Vec Tutorial - The Skip-Gram Model](http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/)
+* [Word2Vec (skip-gram model): PART 1 - Intuition.](https://towardsdatascience.com/word2vec-skip-gram-model-part-1-intuition-78614e4d6e0b)
+* [Implementing word2vec in PyTorch (skip-gram model)](https://towardsdatascience.com/implementing-word2vec-in-pytorch-skip-gram-model-e6bae040d2fb)
