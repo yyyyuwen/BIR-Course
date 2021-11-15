@@ -221,12 +221,13 @@ def show_skipGram():
             inputs = inputs.to(device)
             test_pred = model(inputs)
             test_label = softmax(test_pred.squeeze().cpu().data.numpy())
-            idx = np.argpartition(test_label, -15)[-15:]
+            idx = np.sort(np.argpartition(test_label, -15)[-15:])
             print(idx)
             display_plot(model, idx, idx2word)
             for i in idx[::-1]:
                 predict_word[idx2word[i]] = test_label[i]
                 print(f'{idx2word[i]} : {test_label[i]}')
+        predict_word = {k: v for k, v in sorted(predict_word.items(), key=lambda item: item[1], reverse=True)}
         pred_Figure = os.path.join(app.config['IMG_FOLDER'], 'predict_pic.png')
 
     return render_template("show_skipGram.html", **locals())
@@ -290,4 +291,4 @@ def text2word(text):
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(host='0.0.0.0', port = 8080)
+    app.run(host='0.0.0.0', port='8080')
